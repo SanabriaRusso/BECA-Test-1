@@ -29,6 +29,9 @@
 \usepackage{cite}
 %The below is used to add notes to tables without disrupting the IEEEtran format
 \usepackage{threeparttable}
+%Multiple figures in a row
+\usepackage{caption}
+\usepackage{subcaption}
 
 % Disable below if wanting to comply exclusively to conference mode of IEEEtran
 % \IEEEoverridecommandlockouts
@@ -128,9 +131,27 @@ This document will guide you through the process of acquiring and pushing the op
 \section{What will you need?}\label{hardware}
 As mentioned in~\cite{OpenFWWF}, it is recommended to use a Linux distribution with kernel version 2.6.27-rc5. Feel free to find any source of old Linux versions. Nevertheless, it has proved to be safe for us to use Ubuntu 8.10~\cite{ubuntu8}.
 
-The OpenFWWF is used in combination with the \texttt{b43} Linux  wireless card driver, which in turn is supported by a limited set of Broadcom cards~\cite{b43-info}. For this reason, you will need such card model to continue. We have successfully tested our implementation with a Broadcom BCM4318 card, which is available at~\cite{bcm4318} and connected to a PCI slot with a miniPCI to PCI adapter, like the one available at~\cite{PCIAdapter}.
+The OpenFWWF is used in combination with the \texttt{b43} Linux  wireless card driver, which in turn is supported by a limited set of Broadcom cards~\cite{b43-info}. For this reason, you will need such card model to continue. We have successfully tested our implementation with a Broadcom BCM4318 card (see Figure~\ref{fig:miniPCI}), which is available at~\cite{bcm4318} and connected to a PCI slot with a miniPCI to PCI adapter (see Figure~\ref{fig:PCI}), like the one available at~\cite{PCIAdapter}.
 
 It is also important to have a wired Internet connection to continue further, given that after the Ubuntu installation your are required to fetch the firmware, compiler and prerequisites.
+
+\begin{figure*}[t]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figures/miniPCI.eps}
+  \caption{}
+  \label{fig:miniPCI}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/cardPCI.eps}
+  \caption{}
+  \label{fig:PCI}
+\end{subfigure}
+\caption{\ref{fig:miniPCI}) Broadcom BCM418 miniPCI. \ref{fig:PCI}) Card correctly placed into the PCI adapter.}
+\label{installedCard}
+\end{figure*}
 
 \section{Setting up the environment}
 After the installation of the Ubuntu 8.10, restrain from installing updates. It is better to complete the procedure as detailed here and then go on your own.
@@ -144,7 +165,9 @@ After the update completes, you will be able to download the prerequisites. You 
 After all the above, your computer is ready for the card and firmware installation.
 
 \section{Installing the required hardware}
-If you are using the card referred to in Section~\ref{hardware}, it is necessary to plug it into a miniPCI to PCI adapter. This is a very delicate task, and you should avoid forcing the parts into place. Please refer to Figure~\ref{installedCard} to see the finished procedure.
+
+If you are using the card referred to in Section~\ref{hardware}, it is necessary to plug it into a miniPCI to PCI adapter. This is a very delicate task, and you should avoid forcing the parts into place. Please refer to Figure~\ref{installedCard} to see the finished result.
+
 
 \bibliographystyle{Classes/IEEEtran}
 \bibliography{IEEEabrv,ref}
