@@ -1,0 +1,7 @@
+*.aux
+*.log
+*.dvi
+*.blg
+*.bbl
+*.backup
+Classes/

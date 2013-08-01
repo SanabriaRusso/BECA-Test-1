@@ -1,0 +1,124 @@
+% \documentclass[a4paper,journal]{IEEEtran}
+\documentclass[conference]{IEEEtran}
+%% INFOCOM 2013 addition:
+\makeatletter
+\def\ps@headings{%
+\def\@oddhead{\mbox{}\scriptsize\rightmark \hfil \thepage}%
+\def\@evenhead{\scriptsize\thepage \hfil \leftmark\mbox{}}%
+\def\@oddfoot{}%
+\def\@evenfoot{}}
+\makeatother
+\pagestyle{headings}
+\usepackage{psfrag}
+
+% \usepackage{auto-pst-pdf}
+
+%for using the therefore symbol
+\usepackage{amssymb}
+%end
+
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{color, colortbl}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{footnote}
+\usepackage{cite}
+%The below is used to add notes to tables without disrupting the IEEEtran format
+\usepackage{threeparttable}
+
+% Disable below if wanting to comply exclusively to conference mode of IEEEtran
+% \IEEEoverridecommandlockouts
+
+\makesavenoteenv{tabular}
+
+%Ignores \vbox errors below the level of 10000
+% \vbadness=10000
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{{\protect\color{red}\sout{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{{\protect\color{blue}\uwave{#1}}}                      %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+\begin{document}
+%opening
+ \title{Playing with OpenFWWF: an Open Firmware for WiFi networks}
+
+
+%A more simple output, useful when involving people from different affiliations
+  %\author{
+    %  \IEEEauthorblockN{Luis Sanabria-Russo\IEEEauthorrefmark{0}, Jaume Barcelo\IEEEauthorrefmark{0}, Boris Bellalta\IEEEauthorrefmark{0}}\\
+      %\IEEEauthorblockA{\IEEEauthorrefmark{0}Universitat Pompeu Fabra, Barcelona, Spain
+      %\\\{luis.sanabria, jaume.barcelo, boris.bellalta\}@upf.edu}
+  %}
+
+\author{Luis Sanabria-Russo \\
+		NeTS Research Group at\\
+		Universitat Pompeu Fabra, Barcelona, Spain\\
+		\texttt{Luis.Sanabria@upf.edu}}
+
+%This is the style of three columns, as indicated in IEEEtran
+% \author{\IEEEauthorblockN{Luis Sanabria-Russo}
+%  \IEEEauthorblockA{Department of Information\\
+%  and Communications Technologies\\
+%  Universitat Pompeu Fabra\\
+%  Barcelona, Spain\\
+%  Email: luis.sanabria@upf.edu}
+%  \and
+%  \IEEEauthorblockN{Jaume Barcelo}
+%  \IEEEauthorblockA{Department of Information\\
+%  and Communications Technologies\\
+%  Universitat Pompeu Fabra\\
+%  Barcelona, Spain\\
+%  Email: cristina.cano@upf.edu}
+%  \and
+%  \IEEEauthorblockN{Boris Bellalta}
+%  \IEEEauthorblockA{Department of Information\\
+%  and Communications Technologies\\
+%  Universitat Pompeu Fabra\\
+%  Barcelona, Spain\\
+%  Email: boris.bellalta@upf.edu}}
+
+
+\maketitle
+
+\begin{abstract}
+
+\boldmath CSMA/CA is the current Medium Access Control (MAC) standard for orchestrating transmissions in WLANs. It has successfully performed for many years, making WiFi an ubiquitous wireless technology built with cheap hardware and very simple code. In the past five years many breakthroughs in the physical layer (PHY) caused a dramatic increase in throughput, allowing transmission speeds of over 300Mbps. Nevertheless, CSMA/CA dynamics require long headers, acknowledgements and contention periods to successfully transmit a single frame of user-generated data; reducing the benefits provided by a very fast PHY. Many amends have been proposed to leverage the ``MAC-bottleneck'' and sequentially incorporated into the standard. This report aims at providing an introduction to todays open tools that will allow any researcher to test MAC protocols in real hardware.
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+OpenFWWF, WMP, MAC, Collision-free, CSMA/ECA.
+\end{IEEEkeywords}
+
+\section*{A little warning} \label{introduction}
+Prior the introduction, it is appropriate to filter interests. This report assumes a bit of background on WiFi technology and terminology, nevertheless many of the references are detailed at the end of the document.
+
+Procedures described here must be done at your own risk. Wireless cards (as mentioned in some of the references) might get permanently damaged. Nevertheless, all the events and workarounds that were necessary to achieve the final test of CSMA/ECA will be dutifully detailed.
+
+Now, keep on reading :).
+
+\section{Introduction}\label{introduction}
+
+\bibliographystyle{Classes/IEEEtran}
+\bibliography{IEEEabrv,ref}
+
+\end{document}
