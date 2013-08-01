@@ -156,11 +156,11 @@ It is also important to have a wired Internet connection to continue further, gi
 \section{Setting up the environment}
 After the installation of the Ubuntu 8.10, restrain from installing updates. It is better to complete the procedure as detailed here and then go on your own.
 
-Because Ubuntu 8.10 is very old, you may need to update the \texttt{/etc/apt/sources.list} file to include a repository where you can download and install the prerequisites. Open a Terminal Window and type: \texttt{sudo gedit /etc/apt/sources.list}. This command will cause the Gedit text editor to open the specified file with root credentials (you may be prompted for the root password). Go to the end of the file and add the following line: \texttt{deb http://ubuntu.mirror.cambrium.nl/ubuntu/ lucid main}. Save and close the file.
+Because Ubuntu 8.10 is very old, you may need to update the \texttt{/etc/apt/sources.list} file to include a repository where you can download and install the prerequisites. Open a Terminal window and type: \texttt{sudo gedit /etc/apt/sources.list}. This command will cause the Gedit text editor to open the specified file with root credentials (you may be prompted for the root password). Go to the end of the file and add the following line: \texttt{deb http://ubuntu.mirror.cambrium.nl/ubuntu/ lucid main}. Save and close the file.
 
-Now you need to update the sources list by issuing the following command in the Terminal (you must be connected to the Internet): \texttt{sudo apt-get update} (you may be prompted for the root password). Depending on your Internet connections, this may take a while.
+Now you need to update the sources list by issuing the following command in the Terminal (you must be connected to the Internet): \texttt{sudo apt-get update} (you may be prompted for the root password). Depending on your Internet connection, this may take a while.
 
-After the update completes, you will be able to download the prerequisites. You need to install the \texttt{git-core} package to fetch the code from remote sources, \texttt{g++} to compile C++ code, \texttt{bison} which is a parser generator and \texttt{flex} (Fast Lexical Analyzer). Issue the following command in a terminal window: \texttt{sudo apt-get install git-core bison flex g++} (you may be prompted for the root password). This takes some time to complete.
+After the update completes, you are now be able to download the prerequisites. It is required to install the \texttt{git-core} package to fetch the code from remote sources, \texttt{g++} to compile C++ code, \texttt{bison} which is a parser generator and \texttt{flex} (Fast Lexical Analyzer). Issue the following command in a terminal window: \texttt{sudo apt-get install git-core bison flex g++} (you may be prompted for the root password). This takes some time to complete.
 
 After all the above, your computer is ready for the card and firmware installation.
 
@@ -168,6 +168,24 @@ After all the above, your computer is ready for the card and firmware installati
 
 If you are using the card referred to in Section~\ref{hardware}, it is necessary to plug it into a miniPCI to PCI adapter. This is a very delicate task, and you should avoid forcing the parts into place. Please refer to Figure~\ref{installedCard} to see the finished result.
 
+\section{Putting OpenFWWF to work}
+There are various ways of completing this part of the procedure. Nevertheless, the one provided by~\cite{gnewsense} is both simple and it works.
+
+Summarizing (links refer to the actual commands for layout limitations):
+\begin{enumerate}
+	\item Download the latest version of the firmware source code by issuing the command contained in~\texttt{http://pastebin.com/VwdKEhZ1} into a Terminal window. \\ This will create a directory named  openfwwf-5.2.tar.gz containing the OpenFWWF firmware. Unpack it issuing the following command:\texttt{tar -zxvf openfwwf-5.2.tar.gz}.
+	\item Download the assembly language compiler (b43-tools~\cite{b43-tools}) from its git repository issuing the command found in \texttt{http://pastebin.com/8RC6c01g}
+	\item Once \texttt{b43-tools} is downloaded, issue \texttt{cd b43-tools/assembler} to get into the assembler directory. Then build it typing the \texttt{make} command.\\ This step will create two files, namely: \texttt{b43-asm} and \texttt{b43-asm.bin}.
+	\item Copy \texttt{b43-asm} and \texttt{b43-asm.bin} into the openfwwf-5.2 directory by typing \texttt{cp b43-tools/assembler/b43-asm* openfwwf-5.2/}
+	\item You need to modify the Makefile (openfwwf-5.2/Makefile) replacing \texttt{BCMASM = b43-asm} by \texttt{BCMASM = ./b43-asm}.
+	\item Now just build the firmware and install it by typing \texttt{make} and then \texttt{sudo make install}.\label{make}
+	\item As recommended in~\cite{OpenFWWF}, edit /etc/modprobe.d/arch/i386 file issuing the following command to open it~\texttt{sudo gedit etc/modprobe.d/arch/i386} and then add the following line to the end of the file: \texttt{options b43 qos=0 nohwcrypt=1}. Save and close the file.
+	\item Restart your computer.
+\end{enumerate}
+
+You can browse and edit the firmware by modifying the openfwwf-5.2/ucode5.asm file. To test the modification, build and install the firmware (as in Step~\ref{make} above) and restart your computer.
+
+Now you should be able to see the wireless interface at the top right corner of Ubuntu's menu bar when you log back in into your user account.
 
 \bibliographystyle{Classes/IEEEtran}
 \bibliography{IEEEabrv,ref}
