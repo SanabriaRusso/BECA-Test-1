@@ -125,13 +125,26 @@ To protect manufacturer's commercial interests, firmwares are not usually allowe
 
 This document will guide you through the process of acquiring and pushing the open sourced OpenFWWF firmware to an specific model of Wireless Network Interface Controller (WNIC or wireless cards). Most of the procedures described here can be found on the web, other recommendations are relayed from one of the authors of OpenFWWF.
 
-\section{What will you need?}
+\section{What will you need?}\label{hardware}
 As mentioned in~\cite{OpenFWWF}, it is recommended to use a Linux distribution with kernel version 2.6.27-rc5. Feel free to find any source of old Linux versions. Nevertheless, it has proved to be safe for us to use Ubuntu 8.10~\cite{ubuntu8}.
 
 The OpenFWWF is used in combination with the \texttt{b43} Linux  wireless card driver, which in turn is supported by a limited set of Broadcom cards~\cite{b43-info}. For this reason, you will need such card model to continue. We have successfully tested our implementation with a Broadcom BCM4318 card, which is available at~\cite{bcm4318} and connected to a PCI slot with a miniPCI to PCI adapter, like the one available at~\cite{PCIAdapter}.
 
 It is also important to have a wired Internet connection to continue further, given that after the Ubuntu installation your are required to fetch the firmware, compiler and prerequisites.
 
+\section{Setting up the environment}
+After the installation of the Ubuntu 8.10, restrain from installing updates. It is better to complete the procedure as detailed here and then go on your own.
+
+Because Ubuntu 8.10 is very old, you may need to update the \texttt{/etc/apt/sources.list} file to include a repository where you can download and install the prerequisites. Open a Terminal Window and type: \texttt{sudo gedit /etc/apt/sources.list}. This command will cause the Gedit text editor to open the specified file with root credentials (you may be prompted for the root password). Go to the end of the file and add the following line: \texttt{deb http://ubuntu.mirror.cambrium.nl/ubuntu/ lucid main}. Save and close the file.
+
+Now you need to update the sources list by issuing the following command in the Terminal (you must be connected to the Internet): \texttt{sudo apt-get update} (you may be prompted for the root password). Depending on your Internet connections, this may take a while.
+
+After the update completes, you will be able to download the prerequisites. You need to install the \texttt{git-core} package to fetch the code from remote sources, \texttt{g++} to compile C++ code, \texttt{bison} which is a parser generator and \texttt{flex} (Fast Lexical Analyzer). Issue the following command in a terminal window: \texttt{sudo apt-get install git-core bison flex g++} (you may be prompted for the root password). This takes some time to complete.
+
+After all the above, your computer is ready for the card and firmware installation.
+
+\section{Installing the required hardware}
+If you are using the card referred to in Section~\ref{hardware}, it is necessary to plug it into a miniPCI to PCI adapter. This is a very delicate task, and you should avoid forcing the parts into place. Please refer to Figure~\ref{installedCard} to see the finished procedure.
 
 \bibliographystyle{Classes/IEEEtran}
 \bibliography{IEEEabrv,ref}
