@@ -109,7 +109,7 @@
 OpenFWWF, WMP, MAC, Collision-free, CSMA/ECA.
 \end{IEEEkeywords}
 
-\section*{A little warning} \label{introduction}
+\section*{A little warning} \label{warning}
 Prior the introduction, it is appropriate to filter interests. This report assumes a bit of background on WiFi technology and terminology, nevertheless many of the references are detailed at the end of the document.
 
 Procedures described here must be done at your own risk. Wireless cards (as mentioned in some of the references) might get permanently damaged. Nevertheless, all the events and workarounds that were necessary to achieve the final test of CSMA/ECA will be dutifully detailed.
@@ -117,6 +117,21 @@ Procedures described here must be done at your own risk. Wireless cards (as ment
 Now, keep on reading :).
 
 \section{Introduction}\label{introduction}
+A device firmware is the one managing memory and code to make the device perform as intended. As for most devices, including wireless cards, the firmware is custom made, unique for each architecture.
+
+Even-though the IEEE 802.11 set of WLAN standards define the procedures to guarantee effective communication among hosts, the implementation part is the task of manufacturers. So, it is clear why firmware is closely related to the underlying hardware and how many different hardware/firmware combinations may perform the same function set.
+
+To protect manufacturer's commercial interests, firmwares are not usually allowed to be modified until the end of the product's life-cycle. Nevertheless, current efforts both from the industry and the open source community (as in the case of MadWiFi~\cite{madWiFi} and OpenFWWF~\cite{OpenFWWF}), have led to interesting opportunities for the research community.
+
+This document will guide you through the process of acquiring and pushing the open sourced OpenFWWF firmware to an specific model of Wireless Network Interface Controller (WNIC or wireless cards). Most of the procedures described here can be found on the web, other recommendations are relayed from one of the authors of OpenFWWF.
+
+\section{What will you need?}
+As mentioned in~\cite{OpenFWWF}, it is recommended to use a Linux distribution with kernel version 2.6.27-rc5. Feel free to find any source of old Linux versions. Nevertheless, it has proved to be safe for us to use Ubuntu 8.10~\cite{ubuntu8}.
+
+The OpenFWWF is used in combination with the \texttt{b43} Linux  wireless card driver, which in turn is supported by a limited set of Broadcom cards~\cite{b43-info}. For this reason, you will need such card model to continue. We have successfully tested our implementation with a Broadcom BCM4318 card, which is available at~\cite{bcm4318} and connected to a PCI slot with a miniPCI to PCI adapter, like the one available at~\cite{PCIAdapter}.
+
+It is also important to have a wired Internet connection to continue further, given that after the Ubuntu installation your are required to fetch the firmware, compiler and prerequisites.
+
 
 \bibliographystyle{Classes/IEEEtran}
 \bibliography{IEEEabrv,ref}
