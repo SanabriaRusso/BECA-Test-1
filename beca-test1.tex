@@ -188,7 +188,97 @@ You can browse and edit the firmware by modifying the openfwwf-5.2/ucode5.asm fi
 Now you should be able to see the wireless interface at the top right corner of Ubuntu's menu bar when you log back in into your user account.
 
 \section{Prototyping and testing a new MAC protocol}
-Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) was first introduced by Barcelo et. al. in~\cite{barcelo2008lba} and later adapted to support a greater number of contenders~\cite{research2standards}. Its basic principle is to pick a deterministic backoff after successful transmissions instead of a random one, as done in CSMA/CA. This way successful contenders will not collide among each other in future cycles.
+Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) was first introduced by Barcelo et. al. in~\cite{barcelo2008lba} and later adapted to support a greater number of contenders~\cite{research2standards}. 
+
+To better describe CSMA/ECA it is better to review CSMA/CA:
+
+\begin{enumerate}
+	\item When nodes have something to transmit, they generate a random backoff $B\in[0,CW(k)]$. Where $CW(k)=2^{k}CW_{min}$ is the Contention Window at backoff stage $k\in[0,m]$ and $CW_{min}$ the minimum contention window.
+	\item Each passing empty slot decrements $B$ in one. When the backoff expires ($B=0$), the node will attempt transmission.
+	\item If an ACKowledgement (ACK) from the receiver is received: the backoff stage is reset ($k=0$). And if there are other packets in the MAC queue, the backoff process is restarted.\label{reset}
+	\item If no ACK is received, a collision is assumed. The backoff stage is incremented in one ($k$+=1) and the backoff process is restarted.
+\end{enumerate}
+
+Based on the description of CSMA/CA presented above, CSMA/ECA just picks a deterministic backoff $B_{d}=CW_{min}/2$ after successful transmissions; collisions are handled as in CSMA/CA.
+
+A short example of what is proposed in~\cite{barcelo2008lba} is shown in Figure~\ref{Basic-ECA}.
+
+%Instead of picking a random backoff $B\in[0,2^{k}CW_{min}]$ (where $k\in[0,m]$ is the backoff stage incrementing with each collision up until $m$ and reset to zero after a succesfful transmission; $CW_{min}$ being the minimum contention window) as CSMA/CA does, nodes running CSMA/ECA pick a deterministic backoff $B_{d}=CW_{min}/2$ after successful transmissions. This way successful contenders will not collide among each other in future cycles. A short example of what is proposed in~\cite{barcelo2008lba} is shown in Figure~\ref{Basic-ECA}.
+
+\begin{figure}[htbp]
+\centering
+  \includegraphics[width=\linewidth]{figures/basicECA.eps}
+  \caption{CSMA/ECA example in saturation}
+  \label{Basic-ECA}
+\end{figure}
+
+In Figure~\ref{Basic-ECA}, each station (STA) generates a random backoff at startup. The red outline indicates that at least two of the generated backoff values are the same and stations will consequently collide. On the other hand, successful stations will generate a deterministic backoff ($7$ in the case of example Figure~\ref{Basic-ECA}) and effectively avoid collisions with other successful stations in future cycles, achieving a collision-free state.
+
+A collision-free WLAN carries with it many benefits in terms of throughput when compared with CSMA/CA. Furthermore, the simplicity of CSMA/ECA makes it very easy to implement in OpenFWWF, as will be described in the following.
+
+\subsection{Modifying the backoff mechanism}
+To replicate CSMA/ECA behaviour, each station must pick the same deterministic backoff after successful transmissions. The backoff parameters are set in the \texttt{set\_backoff\_time} function of the \emph{ucode.asm} file (near the end).
+
+To make sure CSMA/ECA stations pick a deterministic backoff after successful transmission, we first check that the current contention window is the minimum contention window (see Item~\ref{reset} in the CSMA/CA description). Then, a deterministic backoff is assigned. The following shows the replaced code as well as the code lines that would convert CSMA/CA into CSMA/ECA in OpenFWWF.
+
+\begin{itemize}
+	\item Random backoff generation: {\bf and} SPR\_TSF\_Random, CUR\_CONTENTION\_WIN, GP\_REG5; is replaced by: {\bf je} CUR\_CONTENTION\_WIN, DEFAULT\_MIN\_CW, deterministic\_backoff; \\
+	This replacement just checks if the current contention window is equal to the minimum contention window ({\bf if}(CUR\_CONTENTION\_WIN == DEFAUL\_MIN\_CW)). If so, then we can assume that the station either successfully transmitted a packet or just got a packet into a previously empty MAC queue.
+	\item If the above result is positive, the flow is redirected to the deterministic\_backoff section of the \texttt{set\_backoff\_time} function, which contains the following instruction: {\bf or} 0x100, 0x000, GP\_REG5;. Assigning 0x100 to the GP\_REG5 register and successfully changing the backoff value.
+\end{itemize}
+
+\subsection{Testing CSMA/ECA}
+We built a simple testing scenario to check whether the modifications performed matched the expected CSMA/ECA behaviour. This was composed of two Ubuntu 8.10 PCs with Broadcom BCM4318 cards running OpenFWWF firmware as WLAN STAtions (STA) connected to an Access Point (AP). To make performance tests, Iperf~\cite{tirumala2005iperf} tool generates UDP streams at 65 Mbps  from both STAs to a Server wired to the access point using Ethernet. At the Server, Wireshark~\cite{combs2007wireshark} captures all packets from the STAs. Figure~\ref{setup} provides an overview of the testing scenario.
+
+\begin{figure}[htbp]
+\centering
+  \includegraphics[width=0.7\linewidth]{figures/test.eps}
+  \caption{Test setup}
+  \label{setup}
+\end{figure}
+
+Two simple test were performed, the first tries to reveal evidence of the deterministic backoff counter, while the second aims at looking at the offered throughput. 
+
+Figures~\ref{ca-backoff}~and~\ref{eca-backoff} show a random set of a hundred server-received packets from STAs running CSMA/CA and CSMA/ECA, respectively.
+
+\begin{figure}[htbp]
+\centering
+  \includegraphics[width=0.7\linewidth,angle=-90]{figures/csma-2h-small.eps}
+  \caption{CSMA/CA transmission turns between node 66 and 65}
+  \label{ca-backoff}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+  \includegraphics[width=0.7\linewidth,angle=-90]{figures/BECA8-2h-small.eps}
+  \caption{CSMA/ECA transmission turns between node 66 and 65}
+  \label{eca-backoff}
+\end{figure}
+
+\subsection{Results}
+
+\subsubsection*{Backoff mechanism}
+As it is expected, CSMA/CA's randomised backoff mechanism is easy to appreciate in Figure~\ref{ca-backoff}, where the "Transmitters" line shows the transmitter of given packet. Whereas in CSMA/ECA (Figure~\ref{eca-backoff}), transmitters seem to alternate transmissions.
+
+\subsubsection*{Throughput}
+From the "Difference of arrivals" curve, we can appreciate that with CSMA/CA the average time between arrived packets is greater than with CSMA/ECA. This means that CSMA/ECA stations are able to access the channel more often than those running CSMA/CA, resulting in an increased throughput. Figure~\ref{throughput} shows the average throughput achieved by each station while attempting to transmit generic UDP packets at 65 Mbps to the Server.
+
+\begin{figure}[htbp]
+\centering
+  \includegraphics[width=0.7\linewidth,angle=-90]{figures/throughput-bar-small.eps}
+  \caption{Throughput}
+  \label{throughput}
+\end{figure}
+
+\section{Conclusion}
+OpenFWWF is a open alternative for researchers wanting to test new MAC protocols in real hardware. In this document the process of obtaining, installing and testing a novel MAC protocol is described alongside with encouraging results.
+
+Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) attempts to build a collision-free WLAN environment, which has significant benefits in terms of throughput. Results from these tests show evidence of an effective modification of CSMA/CA's backoff mechanism alongside with the throughput increase of CSMA/ECA.
+
+This is the first real hardware implementation of CSMA/ECA. Further work might involve the design of more accurate testing scenarios, collision detection and the extension of CSMA/ECA to work with more contenders~\cite{research2standards}.
+
+\section{Acknowledgement}
+The author would like to extend appreciation to Francesco Gringoli for his insight and counsel, as wellgit  to Germán Corrales Madueño for his ever-pushing and contagious motivation.
 
 \bibliographystyle{Classes/IEEEtran}
 \bibliography{IEEEabrv,ref}
