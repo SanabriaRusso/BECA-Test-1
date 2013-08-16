@@ -112,7 +112,7 @@
 OpenFWWF, WMP, MAC, Collision-free, CSMA/ECA.
 \end{IEEEkeywords}
 
-\section*{A little warning} \label{warning}
+\section*{A short warning} \label{warning}
 Prior the introduction, it is appropriate to filter interests. This report assumes a bit of background on WiFi technology and terminology, nevertheless many of the references are detailed at the end of the document.
 
 Procedures described here must be done at your own risk. Wireless cards (as mentioned in some of the references) might get permanently damaged. Nevertheless, all the events and workarounds that were necessary to achieve the final test of CSMA/ECA will be dutifully detailed.
@@ -124,7 +124,7 @@ A device firmware is the one managing memory and code to make the device perform
 
 Even-though the IEEE 802.11 set of WLAN standards define the procedures to guarantee effective communication among hosts, the implementation part is the task of manufacturers. So, it is clear why firmware is closely related to the underlying hardware and how many different hardware/firmware combinations may perform the same function set.
 
-To protect manufacturer's commercial interests, firmwares are not usually allowed to be modified until the end of the product's life-cycle. Nevertheless, current efforts both from the industry and the open source community (as in the case of MadWiFi~\cite{madWiFi} and OpenFWWF~\cite{OpenFWWF}), have led to interesting opportunities for the research community.
+To protect manufacturer's commercial interests, firmwares are not usually allowed to be modified until the end of the product's life-cycle. Nevertheless, current efforts both from the industry and the open source community (as in the case of MadWiFi~\cite{madWiFi} and OpenFWWF~\cite{OpenFWWF}), had led to interesting opportunities for the research community.
 
 This document will guide you through the process of acquiring and pushing the open sourced OpenFWWF firmware to an specific model of Wireless Network Interface Controller (WNIC or wireless cards). Most of the procedures described here can be found on the web, other recommendations are relayed from one of the authors of OpenFWWF.
 
@@ -160,20 +160,20 @@ Because Ubuntu 8.10 is very old, you may need to update the \texttt{/etc/apt/sou
 
 Now you need to update the sources list by issuing the following command in the Terminal (you must be connected to the Internet): \texttt{sudo apt-get update} (you may be prompted for the root password). Depending on your Internet connection, this may take a while.
 
-After the update completes, you are now be able to download the prerequisites. It is required to install the \texttt{git-core} package to fetch the code from remote sources, \texttt{g++} to compile C++ code, \texttt{bison} which is a parser generator and \texttt{flex} (Fast Lexical Analyzer). Issue the following command in a terminal window: \texttt{sudo apt-get install git-core bison flex g++} (you may be prompted for the root password). This takes some time to complete.
+After the update completes, you are now able to download the prerequisites. It is required to install the \texttt{git-core} package to fetch the code from remote sources, \texttt{g++} to compile C++ code, \texttt{bison} which is a parser generator and \texttt{flex} (Fast Lexical Analyzer). Issue the following command in a terminal window: \texttt{sudo apt-get install git-core bison flex g++} (you may be prompted for the root password). This takes some time to complete.
 
 After all the above, your computer is ready for the card and firmware installation.
 
-\section{Installing the required hardware}
+\subsection{Installing the required hardware}
 
 If you are using the card referred to in Section~\ref{hardware}, it is necessary to plug it into a miniPCI to PCI adapter. This is a very delicate task, and you should avoid forcing the parts into place. Please refer to Figure~\ref{installedCard} to see the finished result.
 
-\section{Putting OpenFWWF to work}
+\subsection{Setting OpenFWWF to work}
 There are various ways of completing this part of the procedure. Nevertheless, the one provided by~\cite{gnewsense} is both simple and it works.
 
 Summarizing (links refer to the actual commands for layout limitations):
 \begin{enumerate}
-	\item Download the latest version of the firmware source code by issuing the command contained in~\texttt{http://pastebin.com/VwdKEhZ1} into a Terminal window. \\ This will create a directory named  openfwwf-5.2.tar.gz containing the OpenFWWF firmware. Unpack it issuing the following command:\texttt{tar -zxvf openfwwf-5.2.tar.gz}.
+	\item Download the latest version of the firmware source code by issuing the command contained in~\texttt{http://pastebin.com/VwdKEhZ1} into a Terminal window. \\ This will create a directory named  openfwwf-5.2.tar.gz containing the OpenFWWF firmware. Unpack it issuing the following command:~\texttt{tar -zxvf openfwwf-5.2.tar.gz}.
 	\item Download the assembly language compiler (b43-tools~\cite{b43-tools}) from its git repository issuing the command found in \texttt{http://pastebin.com/8RC6c01g}
 	\item Once \texttt{b43-tools} is downloaded, issue \texttt{cd b43-tools/assembler} to get into the assembler directory. Then build it typing the \texttt{make} command.\\ This step will create two files, namely: \texttt{b43-asm} and \texttt{b43-asm.bin}.
 	\item Copy \texttt{b43-asm} and \texttt{b43-asm.bin} into the openfwwf-5.2 directory by typing \texttt{cp b43-tools/assembler/b43-asm* openfwwf-5.2/}
@@ -183,9 +183,12 @@ Summarizing (links refer to the actual commands for layout limitations):
 	\item Restart your computer.
 \end{enumerate}
 
-You can browse and edit the firmware by modifying the openfwwf-5.2/ucode5.asm file. To test the modification, build and install the firmware (as in Step~\ref{make} above) and restart your computer.
+You can browse and edit the firmware by modifying the openfwwf-5.2/ucode5.asm file. To test the OpenFWWF, build and install the firmware (as in Step~\ref{make} above) and restart your computer.
 
 Now you should be able to see the wireless interface at the top right corner of Ubuntu's menu bar when you log back in into your user account.
+
+\section{Prototyping and testing a new MAC protocol}
+Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) was first introduced by Barcelo et. al. in~\cite{barcelo2008lba} and later adapted to support a greater number of contenders~\cite{research2standards}. Its basic principle is to pick a deterministic backoff after successful transmissions instead of a random one, as done in CSMA/CA. This way successful contenders will not collide among each other in future cycles.
 
 \bibliographystyle{Classes/IEEEtran}
 \bibliography{IEEEabrv,ref}
