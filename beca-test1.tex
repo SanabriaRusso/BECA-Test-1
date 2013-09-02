@@ -104,7 +104,7 @@
 
 \begin{abstract}
 
-\boldmath CSMA/CA is the current Medium Access Control (MAC) standard for orchestrating transmissions in WLANs. It has successfully performed for many years, making WiFi an ubiquitous wireless technology built with cheap hardware and very simple code. In the past five years many breakthroughs in the physical layer (PHY) caused a dramatic increase in throughput, allowing transmission speeds of over 300Mbps. Nevertheless, CSMA/CA dynamics require long headers, acknowledgements and contention periods to successfully transmit a single frame of user-generated data; reducing the benefits provided by a very fast PHY. Many amends have been proposed to leverage the ``MAC-bottleneck'' and sequentially incorporated into the standard. This report aims at providing an introduction to today's open tools that will allow any researcher to test MAC protocols in real hardware.
+\boldmath CSMA/CA is the current Medium Access Control (MAC) standard for orchestrating transmissions in WLANs. It has successfully performed for many years, making WiFi an ubiquitous wireless technology built with cheap hardware and very simple code. In the past five years many breakthroughs in the physical layer (PHY) caused a dramatic increase in throughput, allowing transmission speeds of over 300Mbps. Nevertheless, CSMA/CA dynamics require long headers, acknowledgements and contention periods to successfully transmit a single frame of user-generated data; reducing the benefits provided by a very fast PHY. Many amends have been proposed to leverage the ``MAC-bottleneck'' and sequentially incorporated into the standard. Going from the hardware to software requirements, this work successfully describes how to read and modify an specific WiFi card's firmware. Results show the first implementation of Carrier Sense Multiple Access with Enhanced Collision avoidance in real hardware.
 
 \end{abstract}
 
@@ -120,20 +120,20 @@ Procedures described here must be done at your own risk. Wireless cards (as ment
 Now, keep on reading :).
 
 \section{Introduction}\label{introduction}
-A device firmware is the one managing memory and code to make the device perform as intended. As for most devices, including wireless cards, the firmware is custom made, unique for each architecture.
+A device firmware is the one managing memory and instructions to make the device perform as intended. As for most devices, including wireless cards, the firmware is custom made, unique for each architecture and running in the device's own microprocessor.
 
-Even-though the IEEE 802.11 set of WLAN standards define the procedures to guarantee effective communication among hosts, the implementation part is the task of manufacturers. So, it is clear why firmware is closely related to the underlying hardware and how many different hardware/firmware combinations may perform the same function set.
+Even-though the IEEE 802.11 set of WLAN standards define the procedures to guarantee effective communication among hosts, the implementation part is the task of manufacturers. So, it is clear why firmware is closely related to the underlying hardware and how many different hardware/firmware combinations may provide the same function set.
 
 To protect manufacturer's commercial interests, firmwares are not usually allowed to be modified until the end of the product's life-cycle. Nevertheless, current efforts both from the industry and the open source community (as in the case of MadWiFi~\cite{madWiFi} and OpenFWWF~\cite{OpenFWWF}), had led to interesting opportunities for the research community.
 
 This document will guide you through the process of acquiring and pushing the open sourced OpenFWWF firmware to an specific model of Wireless Network Interface Controller (WNIC or wireless cards). Most of the procedures described here can be found on the web, other recommendations are relayed from one of the authors of OpenFWWF.
 
 \section{What will you need?}\label{hardware}
-As mentioned in~\cite{OpenFWWF}, it is recommended to use a Linux distribution with kernel version 2.6.27-rc5. Feel free to find any source of old Linux versions. Nevertheless, it has proved to be safe for us to use Ubuntu 8.10~\cite{ubuntu8}.
+As mentioned in~\cite{OpenFWWF}, it is recommended to use a Linux distribution with kernel version 2.6.27-rc5. Feel free to find any source of old Linux versions. Nevertheless, it has proven to be safe for us to use Ubuntu 8.10~\cite{ubuntu8}.
 
 The OpenFWWF is used in combination with the \texttt{b43} Linux  wireless card driver, which in turn is supported by a limited set of Broadcom cards~\cite{b43-info}. For this reason, you will need such card model to continue. We have successfully tested our implementation with a Broadcom BCM4318 card (see Figure~\ref{fig:miniPCI}), which is available at~\cite{bcm4318} and connected to a PCI slot with a miniPCI to PCI adapter (see Figure~\ref{fig:PCI}), like the one available at~\cite{PCIAdapter}.
 
-It is also important to have a wired Internet connection to continue further, given that after the Ubuntu installation your are required to fetch the firmware, compiler and prerequisites.
+It is also important to have a wired Internet connection to continue further, given that after the Ubuntu installation you are required to fetch the firmware, compiler and prerequisites.
 
 \begin{figure*}[t]
 \centering
@@ -169,7 +169,7 @@ After all the above, your computer is ready for the card and firmware installati
 If you are using the card referred to in Section~\ref{hardware}, it is necessary to plug it into a miniPCI to PCI adapter. This is a very delicate task, and you should avoid forcing the parts into place. Please refer to Figure~\ref{installedCard} to see the finished result.
 
 \subsection{Setting OpenFWWF to work}
-There are various ways of completing this part of the procedure. Nevertheless, the one provided by~\cite{gnewsense} is both simple and it works.
+There are various ways for completing this part of the procedure. Nevertheless, the one provided by~\cite{gnewsense} is both simple and it works.
 
 Summarizing (links refer to the actual commands for layout limitations):
 \begin{enumerate}
@@ -188,9 +188,9 @@ You can browse and edit the firmware by modifying the openfwwf-5.2/ucode5.asm fi
 Now you should be able to see the wireless interface at the top right corner of Ubuntu's menu bar when you log back in into your user account.
 
 \section{Prototyping and testing a new MAC protocol}
-Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) was first introduced by Barcelo et. al. in~\cite{barcelo2008lba} and later adapted to support a greater number of contenders~\cite{research2standards}. 
+Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) was first introduced by Barcelo et. al. in~\cite{barcelo2008lba}. The way CSMA/ECA works allows it to build a collision-free state among contenting stations, which has a favorable impact on throughput. Further modifications~\cite{research2standards} allowed CSMA/ECA to increase the number of contenders able to maintain the collision-free state.
 
-To better describe CSMA/ECA it is better to review CSMA/CA:
+To better describe CSMA/ECA it is appropriate to review a little of CSMA/CA:
 
 \begin{enumerate}
 	\item When nodes have something to transmit, they generate a random backoff $B\in[0,CW(k)]$. Where $CW(k)=2^{k}CW_{min}$ is the Contention Window at backoff stage $k\in[0,m]$ and $CW_{min}$ the minimum contention window.
@@ -199,7 +199,7 @@ To better describe CSMA/ECA it is better to review CSMA/CA:
 	\item If no ACK is received, a collision is assumed. The backoff stage is incremented in one ($k$+=1) and the backoff process is restarted.
 \end{enumerate}
 
-Based on the description of CSMA/CA presented above, CSMA/ECA just picks a deterministic backoff $B_{d}=CW_{min}/2$ after successful transmissions; collisions are handled as in CSMA/CA.
+Based on the description of CSMA/CA presented above, CSMA/ECA just picks a deterministic backoff $B_{d}=CW_{min}/2$ after successful transmissions; while collisions are handled as in CSMA/CA.
 
 A short example of what is proposed in~\cite{barcelo2008lba} is shown in Figure~\ref{Basic-ECA}.
 
@@ -219,16 +219,16 @@ A collision-free WLAN carries with it many benefits in terms of throughput when 
 \subsection{Modifying the backoff mechanism}
 To replicate CSMA/ECA behaviour, each station must pick the same deterministic backoff after successful transmissions. The backoff parameters are set in the \texttt{set\_backoff\_time} function of the \emph{ucode.asm} file (near the end).
 
-To make sure CSMA/ECA stations pick a deterministic backoff after successful transmission, we first check that the current contention window is the minimum contention window (see Item~\ref{reset} in the CSMA/CA description). Then, a deterministic backoff is assigned. The following shows the replaced code as well as the code lines that would convert CSMA/CA into CSMA/ECA in OpenFWWF.
+To make sure CSMA/ECA stations pick a deterministic backoff after successful transmission, we first check that the current contention window is the minimum contention window (see Item~\ref{reset} in the CSMA/CA description). Then, a deterministic backoff is assigned. The following shows the replaced code as well as the code lines that would convert CSMA/CA into CSMA/ECA in OpenFWWF:
 
 \begin{itemize}
-	\item Random backoff generation: {\bf and} SPR\_TSF\_Random, CUR\_CONTENTION\_WIN, GP\_REG5; is replaced by: {\bf je} CUR\_CONTENTION\_WIN, DEFAULT\_MIN\_CW, deterministic\_backoff; \\
-	This replacement just checks if the current contention window is equal to the minimum contention window ({\bf if}(CUR\_CONTENTION\_WIN == DEFAUL\_MIN\_CW)). If so, then we can assume that the station either successfully transmitted a packet or just got a packet into a previously empty MAC queue.
-	\item If the above result is positive, the flow is redirected to the deterministic\_backoff section of the \texttt{set\_backoff\_time} function, which contains the following instruction: {\bf or} 0x100, 0x000, GP\_REG5;. Assigning 0x100 to the GP\_REG5 register and successfully changing the backoff value.
+	\item Random backoff generation: {\bf and} SPR\_TSF\_Random, CUR\_CONTENTION\_WIN, GP\_REG5; is replaced by: {\bf je} CUR\_CONTENTION\_WIN, DEFAULT\_MIN\_CW, deterministic\_backoff;. \\
+	This replacement just checks if the current contention window is equal to the minimum contention window ({\bf if}(CUR\_CONTENTION\_WIN == DEFAUL\_MIN\_CW)). In a saturated scenario, it can be assumed that the station either successfully transmitted a packet or just got a packet into a previously empty MAC queue. 
+	\item If the above result is positive, the flow is redirected to a new deterministic\_backoff section of the \texttt{set\_backoff\_time} function, which contains the following instruction: {\bf or} 0x100, 0x000, GP\_REG5;. Assigning 0x100 to the GP\_REG5 register and successfully changing the backoff value.
 \end{itemize}
 
 \subsection{Testing CSMA/ECA}
-We built a simple testing scenario to check whether the modifications performed matched the expected CSMA/ECA behaviour. This was composed of two Ubuntu 8.10 PCs with Broadcom BCM4318 cards running OpenFWWF firmware as WLAN STAtions (STA) connected to an Access Point (AP). To make performance tests, Iperf~\cite{tirumala2005iperf} tool generates UDP streams at 65 Mbps  from both STAs to a Server wired to the access point using Ethernet. At the Server, Wireshark~\cite{combs2007wireshark} captures all packets from the STAs. Figure~\ref{setup} provides an overview of the testing scenario.
+We built a simple testing scenario to check whether the modifications performed matched the expected CSMA/ECA behaviour. This was composed of two Ubuntu 8.10 PCs with Broadcom BCM4318 cards running OpenFWWF firmware as WLAN STAtions (STA) connected to an Access Point (AP). To make performance tests, Iperf~\cite{tirumala2005iperf} tool generates UDP streams at 65 Mbps from both STAs to a Server wired to the access point using Ethernet. At the Server, Wireshark~\cite{combs2007wireshark} captures all packets from the STAs. Figure~\ref{setup} provides an overview of the testing scenario.
 
 \begin{figure}[htbp]
 \centering
@@ -258,7 +258,7 @@ Figures~\ref{ca-backoff}~and~\ref{eca-backoff} show a random set of a hundred se
 \subsection{Results}
 
 \subsubsection*{Backoff mechanism}
-As it is expected, CSMA/CA's randomised backoff mechanism is easy to appreciate in Figure~\ref{ca-backoff}, where the "Transmitters" line shows the transmitter of given packet. Whereas in CSMA/ECA (Figure~\ref{eca-backoff}), transmitters seem to alternate transmissions.
+As it is expected, CSMA/CA's randomised backoff mechanism is easy to appreciate in Figure~\ref{ca-backoff}, where the "Transmitters" line shows the transmitter of a given packet. Whereas in CSMA/ECA (Figure~\ref{eca-backoff}), transmitters seem to alternate transmissions.
 
 \subsubsection*{Throughput}
 From the "Difference of arrivals" curve, we can appreciate that with CSMA/CA the average time between arrived packets is greater than with CSMA/ECA. This means that CSMA/ECA stations are able to access the channel more often than those running CSMA/CA, resulting in an increased throughput. Figure~\ref{throughput} shows the average throughput achieved by each station while attempting to transmit generic UDP packets at 65 Mbps to the Server.
@@ -278,7 +278,7 @@ Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) attem
 This is the first real hardware implementation of CSMA/ECA. Further work might involve the design of more accurate testing scenarios, collision detection and the extension of CSMA/ECA to work with more contenders~\cite{research2standards}.
 
 \section{Acknowledgement}
-The author would like to extend appreciation to Francesco Gringoli for his insight and counsel, as wellgit  to Germán Corrales Madueño for his ever-pushing and contagious motivation.
+The author would like to extend appreciation to Francesco Gringoli for his insight and counsel, as well to Germán Corrales Madueño for his ever-pushing and contagious motivation.
 
 \bibliographystyle{Classes/IEEEtran}
 \bibliography{IEEEabrv,ref}
