@@ -128,7 +128,7 @@ Even-though the IEEE 802.11 set of WLAN standards define the procedures to guara
 
 % and how many different hardware/firmware combinations may provide the same function set.
 
-To protect manufacturer's commercial interests, firmwares are not usually allowed to be modified until the end of the product's life-cycle. Nevertheless, current efforts both from the industry and the open source community (as in the case of MadWiFi~\cite{madWiFi} and OpenFWWF~\cite{OpenFWWF}), had led to interesting opportunities for the research community.
+To protect manufacturer's commercial interests, firmwares are not usually allowed to be modified until the end of the product's life-cycle. Nevertheless, current efforts both from the industry and the open source community (as in the case of MadWiFi~\cite{madWiFi} driver and OpenFWWF~\cite{OpenFWWF} firmware), had led to interesting opportunities for the research community.
 
 Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA)~\cite{barcelo2008lba} is a totally distributed MAC protocol for WLANs. It provides an increase in the achieved throughput for contending stations by making simple modifications to the current standard, Carrier Sense Multiple Access with Collision Avoidance (CSMA/CA). Although simple, CSMA/ECA requires modifications to very time-sensitive task (backoff procedure), which are handled at firmware level.
 
@@ -201,7 +201,7 @@ Summarizing (links refer to the actual commands for layout limitations):
 	\item Copy \texttt{b43-asm} and \texttt{b43-asm.bin} into the openfwwf-5.2 directory by typing \texttt{cp b43-tools/assembler/b43-asm* openfwwf-5.2/}
 	\item You need to modify the Makefile (openfwwf-5.2/Makefile) replacing \texttt{BCMASM = b43-asm} by \texttt{BCMASM = ./b43-asm}.
 	\item Now just build the firmware and install it by typing \texttt{make} and then \texttt{sudo make install}.\label{make}
-	\item As recommended in~\cite{OpenFWWF}, edit /etc/modprobe.d/arch/i386 file issuing the following command to open it~\texttt{sudo gedit etc/modprobe.d/arch/i386} and then add the following line to the end of the file: \texttt{options b43 qos=0 nohwcrypt=1}. Save and close the file.
+	\item As recommended in~\cite{OpenFWWF}, edit /etc/modprobe.d/arch/i386 file issuing the following command to open it~\texttt{sudo gedit /etc/modprobe.d/arch/i386} and then add the following line to the end of the file: \texttt{options b43 qos=0 nohwcrypt=1}. Save and close the file.
 	\item Restart your computer.
 \end{enumerate}
 
@@ -232,7 +232,7 @@ A short example of what is proposed in~\cite{barcelo2008lba} is shown in Figure~
 
 \begin{figure*}[t]
 \centering
-  \includegraphics[width=\linewidth]{figures/basicECA.eps}
+  \includegraphics[width=0.85\linewidth]{figures/basicECA.eps}
   \caption{CSMA/ECA example in saturation}
   \label{Basic-ECA}
 \end{figure*}
