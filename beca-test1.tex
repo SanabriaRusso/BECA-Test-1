@@ -128,7 +128,7 @@ Even-though the IEEE 802.11 set of WLAN standards define the procedures to guara
 
 % and how many different hardware/firmware combinations may provide the same function set.
 
-To protect manufacturer's commercial interests, firmwares are not usually allowed to be modified until the end of the product's life-cycle. Nevertheless, current efforts both from the industry and the open source community (as in the case of MadWiFi~\cite{madWiFi} driver and OpenFWWF~\cite{OpenFWWF} firmware), had led to interesting opportunities for the research community.
+To protect manufacturer's commercial interests, firmwares are not usually allowed to be modified until the end of the product's life-cycle. Nevertheless, current efforts both from the industry and the open source community (as in the case of MadWiFi~\cite{madWiFi} driver and OpenFWWF~\cite{OpenFWWF,WMP} firmware), had led to interesting opportunities for the research community.
 
 Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA)~\cite{barcelo2008lba} is a totally distributed MAC protocol for WLANs. It provides an increase in the achieved throughput for contending stations by making simple modifications to the contention mechanism of the current standard, Carrier Sense Multiple Access with Collision Avoidance (CSMA/CA). Although simple, CSMA/ECA requires modifications to the backoff mechanism, which is a very time-sensitive task handled at firmware level.
 
@@ -215,11 +215,17 @@ Carrier Sense Multiple Access with Enhanced Collision Avoidance (CSMA/ECA) was f
 The way CSMA/ECA works is described below.
 
 \begin{enumerate}
-	\item When a packet arrives at a previously empty MAC queue, a CSMA/ECA node generates a random backoff, $B\in[0,CW(k)]$. Where $CW(k)=2^{k}CW_{min}$ is the Contention Window at backoff stage $k\in[0,m]$ and $CW_{min}$ the minimum contention window.\label{initial}
+	%\item When a packet arrives at a previously empty MAC queue, a CSMA/ECA node generates a random backoff, $B\in[0,CW(k)]$. Where $CW(k)=2^{k}CW_{min}$ is the Contention Window at backoff stage $k\in[0,m]$ and $CW_{min}$ the minimum contention window.\label{initial}
 % 	\item When nodes have something to transmit, they generate a random backoff $B\in[0,CW(k)]$. Where $CW(k)=2^{k}CW_{min}$ is the Contention Window at backoff stage $k\in[0,m]$ and $CW_{min}$ the minimum contention window.
- 	\item Each passing empty slot decrements $B$ in one. When the backoff expires ($B=0$), the node will attempt transmission.
- 	\item If an ACKowledgement (ACK) from the receiver is received: the backoff stage is reset ($k=0$), and if there are other packets in the MAC queue, CSMA/ECA instructs the node to pick a deterministic backoff, $B_{d}=CW_{min}/2$.\label{reset}
- 	\item If no ACK is received, a collision is assumed. The backoff stage is incremented in one ($k=k+1$) and the backoff process is restarted (goes to Step~\ref{initial}).
+	\item When a packet arrives at a previously empty MAC queue, a CSMA/ECA node generates a deterministic backoff, $B_{d}=CW_{min}/2$. Where $CW_{min}$ is the minimum Contention Window.\label{initial}
+ 	\item Each passing empty slot decrements $B_{d}$ in one. When the backoff expires ($B_{d}=0$), the node will attempt transmission.
+ 	\item If an ACKowledgement (ACK) from the receiver is received, and if there are other packets in the MAC queue, CSMA/ECA instructs the node to pick a deterministic backoff, $B_{d}=CW_{min}/2$ (goes back to Step~\ref{initial}).
+ 	\item If no ACK is received, a collision is assumed.  This causes CSMA/ECA nodes to handle the collision as in CSMA/CA:
+		\begin{itemize}
+			\item The node's backoff stage $k\in[0,m]$ is incremented in one ($k=k+1$).
+			\item It generates a random backoff, $B\in[0,CW(k)]$. Where $CW(k)=2^{k}CW_{min}$ is the Contention Window at backoff stage $k$.
+			\item The node keeps decrementing the random backoff after each passing empty slot until it expires ($B=0$). Then it will attempt transmission.
+		\end{itemize}
 \end{enumerate}
 
 %CSMA/ECA just picks a deterministic backoff $B_{d}=CW_{min}/2$ after successful transmissions; while collisions force the node to increase its backoff stage ($k$) and pick a random backoff, $B$. 
@@ -237,7 +243,7 @@ A short example of what is proposed in~\cite{barcelo2008lba} is shown in Figure~
   \label{Basic-ECA}
 \end{figure*}
 
-In Figure~\ref{Basic-ECA}, each station (STA) generates a random backoff at startup. The red outline indicates that at least two of the generated backoff values are the same and stations will consequently collide. On the other hand, successful stations will generate a deterministic backoff ($7$ in the case of example Figure~\ref{Basic-ECA}) and effectively avoid collisions with other successful stations in future cycles, achieving a collision-free state.
+In Figure~\ref{Basic-ECA}, each station (STA) generates a random backoff at startup. The first outline indicates that at least two of the generated backoff values are the same and stations will consequently collide. On the other hand, successful stations will generate a deterministic backoff ($7$ in the case of example Figure~\ref{Basic-ECA}) and effectively avoid collisions with other successful stations in future cycles, achieving a collision-free state.
 
 % A collision-free WLAN carries with it many benefits in terms of throughput when compared with CSMA/CA. Furthermore, 
 
@@ -246,13 +252,13 @@ The simplicity of CSMA/ECA makes it very easy to implement in OpenFWWF, as will 
 \subsection{Implementing CSMA/ECA}
 To replicate CSMA/ECA behaviour, each station must pick the same deterministic backoff after successful transmissions. The backoff parameters are set in the \texttt{set\_backoff\_time} function of the \emph{ucode.asm} file (near the end).
 
-To make sure CSMA/ECA stations pick a deterministic backoff after successful transmission, we first check that the current contention window is the minimum contention window (see Step~\ref{reset} in the CSMA/ECA description). Then, a deterministic backoff is assigned. The following shows the replaced code as well as the code lines that would convert CSMA/CA into CSMA/ECA in OpenFWWF:
+To make sure CSMA/ECA stations pick a deterministic backoff after successful transmission, we first check that the current contention window is the minimum contention window. Then, a deterministic backoff is assigned. The following shows the replaced code as well as the code lines that would convert CSMA/CA into CSMA/ECA in OpenFWWF:
 
 \begin{itemize}
 	\item Random backoff generation: {\bf and} SPR\_TSF\_Random, CUR\_CONTENTION\_WIN, GP\_REG5; is followed by: {\bf je} CUR\_CONTENTION\_WIN, DEFAULT\_MIN\_CW, deterministic\_backoff;. \\
 	This addition just checks if the current contention window is equal to the minimum contention window ({\bf if}(CUR\_CONTENTION\_WIN == DEFAULT\_MIN\_CW)). In a saturated scenario, it can be assumed that the station successfully transmitted a packet.
 % 	or just got a packet into a previously empty MAC queue. 
-	\item If the above result is positive, the flow is redirected to a new deterministic\_backoff section of the \texttt{set\_backoff\_time} function, which contains the following instruction: {\bf or} 0x100, 0x000, GP\_REG5; assigning 0x100 to the GP\_REG5 register and successfully changing the backoff value.
+	\item If the above result is positive, the flow is redirected to a new deterministic\_backoff section of the \texttt{set\_backoff\_time} function, which contains the following instruction: {\bf or} 0x007, 0x000, GP\_REG5; assigning 0x007 to the GP\_REG5 register and successfully changing the backoff value.
 \end{itemize}
 
 \subsection{Testing CSMA/ECA}
@@ -289,9 +295,9 @@ Figures~\ref{ca-backoff}~and~\ref{eca-backoff} show a random set of a hundred se
 CSMA/CA's randomized backoff mechanism can be appreciated in Figure~\ref{ca-backoff}, where the ``Transmitters'' line shows how the transmitter of a given packet could be either of the contending stations. Whereas in CSMA/ECA (Figure~\ref{eca-backoff}), transmitters almost alternate transmissions.
 
 \subsection*{Time between packets}
-From the ``Time between packets'' curve, we can appreciate that with CSMA/CA the average time between arrived packets is greater than with CSMA/ECA. This is due to the random backoff time of CSMA/CA (see Section~\ref{explanation}), whereas for CSMA/ECA contenders this backoff is fixed after successful transmissions.
+From the ``Time between packets'' curve, we can appreciate that with CSMA/CA the average time between arrived packets is greater than with CSMA/ECA. This is due to the random backoff time of CSMA/CA, which is prone to collisions; whereas for CSMA/ECA contenders this backoff is fixed after successful transmissions, originating a collision-free state.
 
-\subsubsection*{Throughput}
+\subsubsection*{Throughput}q
 Because CSMA/ECA stations successfully transmit packets more frequently, their achieved throughput is higher than CSMA/CA stations. 
 Figure~\ref{throughput} evidenced this effect by displaying the average throughput achieved by each station while attempting to transmit generic UDP packets at 65 Mbps to the Server. 
 
